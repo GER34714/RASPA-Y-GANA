@@ -62,6 +62,34 @@ canvas.addEventListener("touchend",()=>drawing=false);
 </script>
 </body>
 </html>
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.globalCompositeOperation="destination-out"; // lo que dibujemos borra
+}
+resize();
+window.addEventListener("resize",resize);
+
+let drawing=false;
+function pos(e){
+  const r=canvas.getBoundingClientRect();
+  if(e.touches) return {x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top};
+  return {x:e.clientX-r.left,y:e.clientY-r.top};
+}
+function draw(x,y){
+  ctx.beginPath();
+  ctx.arc(x,y,20,0,Math.PI*2);
+  ctx.fill();
+}
+
+canvas.addEventListener("mousedown",e=>{drawing=true;draw(...Object.values(pos(e)));});
+canvas.addEventListener("mousemove",e=>{if(drawing){draw(...Object.values(pos(e)));}});
+window.addEventListener("mouseup",()=>drawing=false);
+
+canvas.addEventListener("touchstart",e=>{drawing=true;draw(...Object.values(pos(e)));});
+canvas.addEventListener("touchmove",e=>{if(drawing){draw(...Object.values(pos(e)));}});
+canvas.addEventListener("touchend",()=>drawing=false);
+</script>
+</body>
+</html>
   .modal[open]{display:grid}
   .modal .content{background:#0d1222cc;border:1px solid #ffffff25;border-radius:18px;padding:22px;width:min(520px,92vw);position:relative}
   .modal h2{margin-top:0}
