@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FACU CASINO™ - Raspadita Oficial 🎰✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+  :root{--gold:#ffd166;--gold2:#ff9d5c;--bg1:#0b0f1a;--bg2:#151e2e}
+  body{margin:0;font-family:'Outfit',sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#fff;display:grid;place-items:center;padding:20px;}
+  .wrap{max-width:920px;width:100%;display:grid;gap:20px}
+  header{text-align:center}
+  header img{max-width:280px;width:60%;height:auto;display:block;margin:0 auto 10px}
+  .tag{font-size:12px;opacity:.8;background:#ffffff10;padding:6px 10px;border-radius:999px;border:1px solid #ffffff20;display:inline-block}
+  .card{background:#0d1222cc;border:1px solid #ffffff20;border-radius:18px;box-shadow:0 10px 40px #00000070;padding:16px;}
+  .scratch-area{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:16/10;border:1px solid #ffffff20;margin-top:10px}
+  .prize-layer,.cover-layer,canvas{position:absolute;inset:0}
+  .prize-layer{display:grid;place-items:center;background:linear-gradient(135deg,#0b1222,#0e0f1a 70%)}
+  .prize-box{text-align:center;padding:24px;border-radius:16px;background:#00000060;border:1px dashed #ffffff30}
+  .prize-title{font-size:26px;font-weight:800}
+  .prize-amount{font-size:36px;font-weight:800;color:var(--gold);text-shadow:0 0 20px #ffd16680}
+  .sub{opacity:.8;font-size:14px}
+  .cover-layer{display:grid;place-items:center;background:repeating-linear-gradient(45deg,#d4af37,#d4af37 12px,#cfa52f 12px,#cfa52f 24px)}
+  .cover-label{background:#0c1120;color:var(--gold);padding:10px 14px;border-radius:12px;font-weight:600;border:1px solid #ffffff20}
+  .bar{display:flex;gap:12px;align-items:center;margin-top:12px}
+  .progress{flex:1;height:10px;background:#ffffff14;border-radius:999px;overflow:hidden}
+  .progress>i{display:block;height:100%;width:0%}
+  .progress.ready>i{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+  .btn{padding:10px 14px;border-radius:12px;border:none;font-weight:600;cursor:pointer}
+  .btn.whatsapp{background:linear-gradient(90deg,#0a4426,#116c3c);color:#fff}
+  .btn.secondary{background:#1b1f33;color:#fff}
+  .side{display:grid;gap:14px}
+  .side .card h3{margin:0 0 6px;font-size:18px}
+  .pill{display:inline-block;padding:6px 10px;margin:4px;border-radius:999px;background:#ffffff10;border:1px solid #ffffff20;font-size:14px}
+  .modal{position:fixed;inset:0;display:none;place-items:center;background:#00000080;z-index:50}
+  .modal[open]{display:grid}
+  .modal .content{background:#0d1222cc;border:1px solid #ffffff25;border-radius:18px;padding:22px;width:min(520px,92vw);position:relative}
+  .modal h2{margin-top:0}
+  .x{position:absolute;top:14px;right:14px;cursor:pointer;background:#ffffff10;border:1px solid #ffffff25;padding:6px 10px;border-radius:10px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <!-- 👇 LOGO FACU CASINO™ (cambiá el src por tu PNG transparente) -->
+      <img src="https://iili.io/TuLogo.png" alt="FACU CASINO™ Logo">
+      <div class="tag">+18 • Jugá con responsabilidad</div>
+    </header>
+
+    <div class="card">
+      <div class="scratch-area" id="scratch">
+        <div class="prize-layer">
+          <div class="prize-box">
+            <div class="sub">Tu premio es</div>
+            <div class="prize-title" id="prizeTitle">Cargando…</div>
+            <div class="prize-amount" id="prizeAmount">—</div>
+            <div class="sub" id="prizeNote">Raspá para revelar</div>
+          </div>
+        </div>
+        <canvas id="cover"></canvas>
+        <div class="cover-layer" id="coverLabel"><div class="cover-label">RASPÁ ACÁ ✨</div></div>
+      </div>
+      <div class="bar">
+        <div class="progress" id="progress"><i></i></div>
+        <button class="btn secondary" id="resetBtn">Reiniciar</button>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="card">
+        <h3>Premios FACU CASINO™</h3>
+        <div id="prizeList"></div>
+      </div>
+      <div class="card">
+        <h3>Reclamar por WhatsApp</h3>
+        <button class="btn whatsapp" id="waBtn">Abrir WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <dialog class="modal" id="modal">
+    <div class="content">
+      <button class="x" id="closeModal">✕</button>
+      <h2>¡Premio revelado! 🎉</h2>
+      <p id="modalText"></p>
+      <button class="btn whatsapp" id="claimBtn">Reclamar</button>
+      <p id="claimNote" style="font-size:13px;opacity:.8"></p>
+    </div>
+  </dialog>
+
+<script>
+(()=> {
+  const WHATSAPP="+5491125127839"; // 📲 tu cajero
+  const PRIZES=[
+    {title:"Gran Premio",amount:"100.000 fichas",weight:1},
+    {title:"Segundo Premio",amount:"70.000 fichas",weight:2},
+    {title:"Tercer Premio",amount:"50.000 fichas",weight:3},
+    {title:"Bonus",amount:"30% extra",weight:5},
+    {title:"Sigue participando",amount:"¡Probá de nuevo!",weight:8}
+  ];
+  const REVEAL=0.6,BRUSH=24;
+  const el={c:document.getElementById("cover"),scratch:document.getElementById("scratch"),
+    title:document.getElementById("prizeTitle"),amt:document.getElementById("prizeAmount"),
+    note:document.getElementById("prizeNote"),list:document.getElementById("prizeList"),
+    progress:document.getElementById("progress"),reset:document.getElementById("resetBtn"),
+    waBtn:document.getElementById("waBtn"),modal:document.getElementById("modal"),
+    mText:document.getElementById("modalText"),mNote:document.getElementById("claimNote"),
+    claim:document.getElementById("claimBtn"),close:document.getElementById("closeModal")};
+  const ctx=el.c.getContext("2d",{willReadFrequently:true});
+  let drawing=false,last=null,prize=null,code=null;
+  const rand=m=>crypto.getRandomValues(new Uint32Array(1))[0]%m;
+  const pick=()=>{let sum=PRIZES.reduce((a,b)=>a+b.weight,0),r=rand(sum);for(const p of PRIZES){if(r<p.weight)return p;r-=p.weight}return PRIZES[0];};
+  const gen=()=>[...crypto.getRandomValues(new Uint8Array(4))].map(b=>b.toString(16).padStart(2,"0")).join("").toUpperCase();
+  const openWA=msg=>window.open(`https://wa.me/${WHATSAPP.replace(/\D/g,"")}?text=${encodeURIComponent(msg)}`,"_blank");
+  const layout=()=>{const r=el.scratch.getBoundingClientRect();el.c.width=r.width;el.c.height=r.height;ctx.fillStyle="#cfa52f";ctx.fillRect(0,0,r.width,r.height);ctx.globalCompositeOperation="destination-out";};
+  const reset=()=>{prize=pick();el.title.textContent=prize.title;el.amt.textContent=prize.amount;layout();code=null;el.progress.querySelector("i").style.width="0%";};
+  const draw=(x,y)=>{ctx.beginPath();ctx.arc(x,y,BRUSH,0,Math.PI*2);ctx.fill();};
+  const pos=e=>{const r=el.c.getBoundingClientRect();if(e.touches)return{x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top};return{x:e.clientX-r.left,y:e.clientY-r.top}};
+  const measure=()=>{const step=8,w=el.c.width,h=el.c.height,d=ctx.getImageData(0,0,w,h).data;let c=0,t=0;for(let y=0;y<h;y+=step){for(let x=0;x<w;x+=step){t++;if(d[(y*w+x)*4+3]===0)c++;}}return c/t};
+  const start=e=>{drawing=true;last=pos(e);draw(last.x,last.y);};
+  const move=e=>{if(!drawing)return;const p=pos(e);draw(p.x,p.y);last=p;const pct=measure();el.progress.querySelector("i").style.width=(pct*100).toFixed(0)+"%";if(pct>=REVEAL){drawing=false;code=gen();el.mText.textContent=`${prize.title} - ${prize.amount}`;el.mNote.textContent=`Código: ${code}`;el.modal.setAttribute("open","");confetti({particleCount:80,spread:70,origin:{y:.7}});}};
+  const end=()=>{drawing=false};
+  el.c.addEventListener("mousedown",start);el.c.addEventListener("mousemove",move);window.addEventListener("mouseup",end);
+  el.c.addEventListener("touchstart",start,{passive:false});el.c.addEventListener("touchmove",move,{passive:false});el.c.addEventListener("touchend",end);
+  el.reset.onclick=reset;el.waBtn.onclick=()=>openWA("Hola 👋 vengo de la raspadita de FACU CASINO™");
+  el.claim.onclick=()=>openWA(`Reclamo ${prize.title} (${prize.amount}). Código: ${code}`);
+  el.close.onclick=()=>el.modal.close();el.list.innerHTML=PRIZES.map(p=>`<span class="pill">${p.title} - ${p.amount}</span>`).join("");
+  reset();
+})();
+</script>
+</body>
+                          </html>
+                          
